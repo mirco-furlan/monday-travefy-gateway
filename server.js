@@ -26,11 +26,11 @@ const TRAVEFY_CONFIG = {
 
 // Verifica configurazione minima all'avvio
 if (!TRAVEFY_CONFIG.baseUrl || !TRAVEFY_CONFIG.publicKey || !TRAVEFY_CONFIG.privateKey || !TRAVEFY_CONFIG.userToken || !TRAVEFY_CONFIG.userId) {
-  console.error('ERRORE: undefined TRAVEFY_PRIVATE_KEY!');
+  console.error('WARNING: undefined TRAVEFY_PRIVATE_KEY!');
 }
 
 if (!TRAVEFY_CONFIG.proxySecret) {
-  console.warn('ATTENZIONE: undefined PROXY_SECRET_TOKEN! Proxy server is unsecure.');
+  console.warn('WARNING: undefined PROXY_SECRET_TOKEN! Proxy server is unsecure.');
 }
 
 /**
