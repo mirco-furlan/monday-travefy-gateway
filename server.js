@@ -111,7 +111,11 @@ app.get('/health', (req, res) => {
 });
 
 // Avvio server
-app.listen(PORT, () => {
-  console.log(`Proxy server running on port ${PORT}`);
-  console.log(`Targeting Travefy API: ${TRAVEFY_CONFIG.baseUrl}`);
-});
+if (process.env.NODE_ENV !== 'test' && !process.env.NETLIFY) {
+  app.listen(PORT, () => {
+    console.log(`Proxy server running on port ${PORT}`);
+    console.log(`Targeting Travefy API: ${TRAVEFY_CONFIG.baseUrl}`);
+  });
+}
+
+module.exports = app;
