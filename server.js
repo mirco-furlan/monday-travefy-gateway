@@ -21,7 +21,6 @@ const TRAVEFY_CONFIG = {
   privateKey: process.env.TRAVEFY_PRIVATE_KEY,
   userToken: process.env.TRAVEFY_USER_TOKEN,
   userId: process.env.TRAVEFY_USER_ID,
-  proxySecret: process.env.PROXY_SECRET_TOKEN
 };
 
 // Verifica configurazione minima all'avvio
@@ -29,7 +28,7 @@ if (!TRAVEFY_CONFIG.baseUrl || !TRAVEFY_CONFIG.publicKey || !TRAVEFY_CONFIG.priv
   console.error('WARNING: undefined TRAVEFY_PRIVATE_KEY!');
 }
 
-if (!TRAVEFY_CONFIG.proxySecret) {
+if (!process.env.proxySecret) {
   console.warn('WARNING: undefined PROXY_SECRET_TOKEN! Proxy server is unsecure.');
 }
 
@@ -39,9 +38,9 @@ if (!TRAVEFY_CONFIG.proxySecret) {
  */
 app.all('/api/travefy/*', async (req, res) => {
   // 1. Verifica Autorizzazione (se configurata)
-  if (TRAVEFY_CONFIG.proxySecret) {
+  if (process.env.proxySecret) {
     const authHeader = req.headers.authorization;
-    const expectedAuth = `Bearer ${TRAVEFY_CONFIG.proxySecret}`;
+    const expectedAuth = `Bearer ${process.env.proxySecret}`;
 
     if (!authHeader || authHeader !== expectedAuth) {
       console.warn(`[Proxy] request not authorized: ${req.method} ${req.url}`);
@@ -55,6 +54,7 @@ app.all('/api/travefy/*', async (req, res) => {
   // Estrai il percorso dopo /api/travefy/
   // req.params[0] contiene la parte corrispondente all'asterisco
   const travefyPath = req.params[0];
+  console.log(`[Proxy] ${travefyPath}`);
   const url = `${TRAVEFY_CONFIG.baseUrl}/${travefyPath}`;
 
   console.log(`[Proxy] ${req.method} ${url}`);
@@ -66,7 +66,7 @@ app.all('/api/travefy/*', async (req, res) => {
         'Content-Type': 'application/json',
         'X-API-PUBLIC-KEY': TRAVEFY_CONFIG.publicKey,
         'X-API-PRIVATE-KEY': TRAVEFY_CONFIG.privateKey,
-        'X-USER-ACCESS-TOKEN': TRAVEFY_CONFIG.userToken
+        'X-USER-TOKEN': TRAVEFY_CONFIG.userToken
       }
     };
 
@@ -84,6 +84,7 @@ app.all('/api/travefy/*', async (req, res) => {
     } else {
       data = await response.text();
     }
+
 
     res.status(response.status).json(data);
   } catch (error) {
