@@ -36,7 +36,7 @@ if (!process.env.proxySecret) {
  * Generic Proxy for all Travefy apis
  * Example: GET /api/travefy/trips -> Call Travefy /api/trips
  */
-app.all('/api/travefy/*', async (req, res) => {
+app.all('/travefy/*', async (req, res) => {
   // 1. Verifica Autorizzazione (se configurata)
   if (process.env.proxySecret) {
     const authHeader = req.headers.authorization;
