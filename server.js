@@ -15,21 +15,11 @@ app.use(cors({
 app.use(express.json());
 
 // Credenziali Travefy
-const TRAVEFY_CONFIG = {
-  baseUrl: process.env.TRAVEFY_BASE_URL,
-  publicKey: process.env.TRAVEFY_PUBLIC_KEY,
-  privateKey: process.env.TRAVEFY_PRIVATE_KEY,
-  userToken: process.env.TRAVEFY_USER_TOKEN,
-  userId: process.env.TRAVEFY_USER_ID,
-};
+const TRAVEFY_CONFIG = {baseUrl: process.env.TRAVEFY_BASE_URL};
 
 // Verifica configurazione minima all'avvio
-if (!TRAVEFY_CONFIG.baseUrl || !TRAVEFY_CONFIG.publicKey || !TRAVEFY_CONFIG.privateKey || !TRAVEFY_CONFIG.userToken || !TRAVEFY_CONFIG.userId) {
-  console.error('WARNING: undefined TRAVEFY_PRIVATE_KEY!');
-}
-
-if (!process.env.proxySecret) {
-  console.warn('WARNING: undefined PROXY_SECRET_TOKEN! Proxy server is unsecure.');
+if (!TRAVEFY_CONFIG.baseUrl) {
+  console.error('WARNING: undefined TRAVEFY_BASE_URL!');
 }
 
 /**
@@ -60,15 +50,20 @@ app.all('/travefy/*', async (req, res) => {
   console.log(`[Proxy] ${req.method} ${url}`);
 
   try {
+    const publicKey = req.headers['x-public-key'] || req.headers['x-api-public-key'] || process.env.TRAVEFY_PUBLIC_KEY || '';
+    const privateKey = req.headers['x-private-key'] || req.headers['x-api-private-key'] || process.env.TRAVEFY_PRIVATE_KEY || '';
+    const userToken = req.headers['x-user-token'] || process.env.TRAVEFY_USER_TOKEN || '';
+
     const fetchOptions = {
       method: req.method,
       headers: {
-        'Content-Type': 'application/json',
-        'X-API-PUBLIC-KEY': TRAVEFY_CONFIG.publicKey,
-        'X-API-PRIVATE-KEY': TRAVEFY_CONFIG.privateKey,
-        'X-USER-TOKEN': TRAVEFY_CONFIG.userToken
+        'Content-Type': 'application/json'
       }
     };
+
+    if (publicKey) fetchOptions.headers['X-API-PUBLIC-KEY'] = publicKey;
+    if (privateKey) fetchOptions.headers['X-API-PRIVATE-KEY'] = privateKey;
+    if (userToken) fetchOptions.headers['X-USER-TOKEN'] = userToken;
 
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
       fetchOptions.body = JSON.stringify(req.body);
@@ -103,11 +98,10 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    // config: {
-    //     publicKeySet: !!TRAVEFY_CONFIG.publicKey,
-    //     privateKeySet: !!TRAVEFY_CONFIG.privateKey,
-    //     userTokenSet: !!TRAVEFY_CONFIG.userToken
-    // }
+    config: {
+        baseUrl: TRAVEFY_CONFIG.baseUrl,
+        proxySecretConfigured: !!process.env.proxySecret
+    }
   });
 });
 
