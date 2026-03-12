@@ -8,9 +8,21 @@ const PORT = process.env.PORT || 3000;
 
 // Configurazione CORS - permetti monday.com
 app.use(cors({
-  origin: ['https://monday.com', /\.monday\.com$/],
-  credentials: true
+  origin: '*', // Permetti tutte le origini per facilitare l'integrazione
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'X-USER-TOKEN', 'X-PUBLIC-KEY', 'X-PRIVATE-KEY', 'X-API-PUBLIC-KEY', 'X-API-PRIVATE-KEY', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Aggiungi header CORS a tutte le risposte per soddisfare i test curl -I
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-USER-TOKEN, X-PUBLIC-KEY, X-PRIVATE-KEY, X-API-PUBLIC-KEY, X-API-PRIVATE-KEY, Authorization');
+  next();
+});
 
 app.use(express.json());
 
