@@ -2,6 +2,14 @@
   external_node_modules = ["express"]
   node_bundler = "esbuild"
 
+[[headers]]
+  for = "/travefy/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, X-USER-TOKEN, X-PUBLIC-KEY, X-PRIVATE-KEY, X-API-PUBLIC-KEY, X-API-PRIVATE-KEY, Authorization"
+    Access-Control-Max-Age = "86400"
+
 [[redirects]]
   force = true
   from = "/*"
